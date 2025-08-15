@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Application Tracker</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(to right, #f3f4f6, #e0e7ff);
+      margin: 0; padding: 20px;
+      color: #1f2937;
+    }
+
+    h1 {
+      font-weight: 700;
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      text-align: center;
+      color: #111827;
+    }
+
+    .client-info {
+      background: #ffffff;
+      max-width: 600px;
+      margin: 0 auto 30px auto;
+      padding: 25px 30px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      text-align: center;
+      font-weight: 600;
+      font-size: 1.15rem;
+      color: #374151;
+      letter-spacing: 0.02em;
+      user-select: none;
+      transition: transform 0.3s ease;
+    }
+
+    .client-info:hover {
+      transform: scale(1.01);
+    }
+
+    #search {
+      display: block;
+      max-width: 600px;
+      margin: 0 auto 30px auto;
+      width: 100%;
+      padding: 14px 20px;
+      font-size: 1rem;
+      border-radius: 12px;
+      border: 2px solid #e5e7eb;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      outline: none;
+    }
+    #search:focus {
+      border-color: #3b82f6;
+      box-shadow: 0 0 12px #3b82f6;
+    }
+
+    #app-list {
+      max-width: 600px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+
+    .skeleton-card {
+      background: linear-gradient(90deg, #eee 25%, #ddd 50%, #eee 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      height: 120px;
+      border-radius: 14px;
+    }
+
+    @keyframes shimmer {
+      0% {background-position: 200% 0;}
+      100% {background-position: -200% 0;}
+    }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      padding: 20px 25px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      position: relative;
+      overflow: hidden;
+      transform: translateY(40px) scale(0.95);
+      opacity: 0;
+      animation: fadeUpScale 0.5s forwards;
+      transition: box-shadow 0.3s ease, transform 0.3s ease;
+    }
+
+    .card:hover {
+      box-shadow: 0 24px 48px rgba(59, 130, 246, 0.3);
+      transform: translateY(-4px) scale(1.02);
+    }
+
+    .task-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #111827;
+    }
+
+    .info-row {
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+      color: #4b5563;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .status {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      padding: 6px 14px;
+      border-radius: 9999px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: white;
+      text-transform: uppercase;
+      user-select: none;
+      box-shadow: 0 0 10px rgba(0,0,0,0.15);
+    }
+
+    .Done {
+      background: linear-gradient(270deg, #10b981, #14d79d, #10b981);
+      background-size: 600% 600%;
+      animation: pulseGradient 3s ease infinite;
+      box-shadow: 0 0 12px #10b981cc;
+    }
+
+    .Pending {
+      background: linear-gradient(270deg, #fbbf24, #fde68a, #fbbf24);
+      background-size: 600% 600%;
+      animation: pulseGradient 3s ease infinite;
+      box-shadow: 0 0 12px #fbbf24cc;
+    }
+
+    .In-progress {
+      background: linear-gradient(270deg, #3b82f6, #60a5fa, #3b82f6);
+      background-size: 600% 600%;
+      animation: pulseGradient 3s ease infinite;
+      box-shadow: 0 0 12px #3b82f6cc;
+    }
+
+    .Not-started {
+      background: linear-gradient(270deg, #f59e0b, #fbbf24, #f59e0b);
+      background-size: 600% 600%;
+      animation: pulseGradient 3s ease infinite;
+      box-shadow: 0 0 12px #f59e0bcc;
+    }
+
+    @keyframes pulseGradient {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
+    }
+
+    @keyframes fadeUpScale {
+      0% { opacity: 0; transform: translateY(40px) scale(0.95); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .disclaimer {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 0.95rem;
+      color: #6b7280;
+      animation: fadeIn 2s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      0% {opacity: 0;}
+      100% {opacity: 1;}
+    }
+
+    @media (min-width: 768px) {
+      #app-list {
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>Application Tracker</h1>
+
+<div class="client-info" id="client-info">Loading client info...</div>
+
+<input type="text" id="search" placeholder="Search tasks..." autocomplete="off" />
+
+<div id="app-list">
+  <div class="skeleton-card"></div>
+  <div class="skeleton-card"></div>
+  <div class="skeleton-card"></div>
+</div>
+
+<div class="disclaimer">
+  📌 Developed by Johan de Beer. Data updates live from secure cloud storage.
+</div>
+
+<script>
+  const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSEi3YxtE4KBOCMWCZbHhshel3G9JOhB0zlPapJTmuh9qCBCUc_scjHVrkMlrZ9qnlmKvRUTBRwnsTy/pub?output=csv';
+
+  let applications = [];
+
+  function parseCSV(text) {
+    const lines = text.trim().split('\n');
+    const headers = lines.shift().split(',').map(h => h.trim());
+    return lines.map(line => {
+      const data = line.split(',').map(d => d.trim());
+      const obj = {};
+      headers.forEach((h, i) => obj[h] = data[i] || '');
+      return obj;
+    });
+  }
+
+  const appList = document.getElementById('app-list');
+  const searchInput = document.getElementById('search');
+  const clientInfoDiv = document.getElementById('client-info');
+
+  function renderClientInfo(apps) {
+    if (!apps.length) {
+      clientInfoDiv.textContent = 'No client information found.';
+      return;
+    }
+    const first = apps[0];
+    clientInfoDiv.innerHTML = `
+      <div><strong>Client Name:</strong> ${first['Name'] || '-'}</div>
+      <div><strong>Client Surname:</strong> ${first['Surname'] || '-'}</div>
+      <div><strong>Application Type:</strong> ${first['Application type'] || '-'}</div>
+    `;
+  }
+
+  function renderApps(list) {
+    if (!list.length) {
+      appList.innerHTML = '<p>No applications found.</p>';
+      return;
+    }
+    appList.innerHTML = '';
+    list.forEach((app, i) => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.style.animationDelay = `${i * 0.1}s`;
+
+      const statusClass = app['Status'] ? app['Status'].replace(/\s+/g, '-') : 'Pending';
+
+      card.innerHTML = `
+        <h3 class="task-title">${app['Task']}</h3>
+        <div class="info-row"><span>Status:</span> <span class="status ${statusClass}">${app['Status']}</span></div>
+        <div class="info-row"><span>Assignee:</span> <span>${app['Assignee'] || '-'}</span></div>
+        <div class="info-row"><span>Due date:</span> <span>${app['Due date'] || '-'}</span></div>
+        <div class="info-row"><span>Updated at:</span> <span>${app['Updated at'] || '-'}</span></div>
+      `;
+      appList.appendChild(card);
+    });
+  }
+
+  function fetchData() {
+    appList.innerHTML = '<div class="skeleton-card"></div><div class="skeleton-card"></div><div class="skeleton-card"></div>';
+    clientInfoDiv.textContent = 'Loading client info...';
+    const urlWithCacheBust = CSV_URL + '&cacheBust=' + Date.now();
+    fetch(urlWithCacheBust)
+      .then(res => res.ok ? res.text() : Promise.reject('Failed to fetch'))
+      .then(text => {
+        applications = parseCSV(text);
+        renderClientInfo(applications);
+        renderApps(applications);
+      })
+      .catch(err => {
+        appList.innerHTML = '<p>Failed to load data.</p>';
+        clientInfoDiv.textContent = '';
+        console.error(err);
+      });
+  }
+
+  searchInput.addEventListener('input', () => {
+    const term = searchInput.value.toLowerCase();
+    const filtered = applications.filter(app => app['Task'] && app['Task'].toLowerCase().includes(term));
+    renderApps(filtered);
+  });
+
+  fetchData();
+  setInterval(fetchData, 60000);
+</script>
+
+</body>
+</html>
