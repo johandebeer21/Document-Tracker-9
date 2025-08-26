@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -10,16 +11,17 @@
     body {
       font-family: 'Inter', sans-serif;
       background: linear-gradient(to right, #f3f4f6, #e0e7ff);
-      margin: 0; padding: 20px;
+      margin: 0; 
+      padding: 20px;
       color: #1f2937;
     }
 
-    h1 {
-      font-weight: 700;
-      font-size: 2rem;
-      margin-bottom: 0.5rem;
-      text-align: center;
-      color: #111827;
+    h1 { 
+      font-weight: 700; 
+      font-size: 2rem; 
+      margin-bottom: 0.5rem; 
+      text-align: center; 
+      color: #111827; 
     }
 
     .client-info {
@@ -53,17 +55,14 @@
       transition: border-color 0.3s ease, box-shadow 0.3s ease;
       outline: none;
     }
-    #search:focus {
-      border-color: #3b82f6;
-      box-shadow: 0 0 12px #3b82f6;
-    }
+    #search:focus { border-color: #3b82f6; box-shadow: 0 0 12px #3b82f6; }
 
     #app-list {
-      max-width: 600px;
+      max-width: 1200px; /* wider for desktops */
       margin: 0 auto;
       display: grid;
-      grid-template-columns: 1fr;
-      gap: 18px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
     }
 
     .skeleton-card {
@@ -94,20 +93,8 @@
       transform: translateY(-4px) scale(1.02);
     }
 
-    .task-title {
-      font-size: 1.25rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-      color: #111827;
-    }
-
-    .info-row {
-      font-size: 0.9rem;
-      margin-bottom: 6px;
-      color: #4b5563;
-      display: flex;
-      justify-content: space-between;
-    }
+    .task-title { font-size: 1.25rem; font-weight: 700; margin-bottom: 8px; color: #111827; }
+    .info-row { font-size: 0.9rem; margin-bottom: 6px; color: #4b5563; display: flex; justify-content: space-between; }
 
     .status {
       position: absolute;
@@ -134,23 +121,30 @@
     .disclaimer { margin-top: 40px; text-align: center; font-size: 0.95rem; color: #6b7280; animation: fadeIn 2s ease-in-out; }
     @keyframes fadeIn { 0% {opacity: 0;} 100% {opacity: 1;} }
 
-    @media (min-width: 768px) { #app-list { grid-template-columns: 1fr 1fr; gap: 24px; } }
+    /* Extra styling for larger screens */
+    @media (min-width: 768px) {
+      body { padding: 30px; }
+      .client-info { padding: 30px 35px; font-size: 1.2rem; }
+    }
+    @media (min-width: 1024px) {
+      body { padding: 40px; }
+      .client-info { padding: 35px 40px; font-size: 1.25rem; }
+      .card { padding: 25px 30px; }
+      .task-title { font-size: 1.5rem; }
+      .info-row { font-size: 1rem; }
+    }
   </style>
 </head>
 <body>
 
 <h1>Application Tracker</h1>
-
 <div class="client-info" id="client-info">Loading client info...</div>
-
 <input type="text" id="search" placeholder="Search tasks..." autocomplete="off" />
-
 <div id="app-list">
   <div class="skeleton-card"></div>
   <div class="skeleton-card"></div>
   <div class="skeleton-card"></div>
 </div>
-
 <div class="disclaimer">📌 Developed by Johan de Beer. Data updates live from secure cloud storage.</div>
 
 <script>
@@ -160,12 +154,14 @@
   function parseCSV(text) {
     const lines = text.trim().split('\n').filter(line => line.trim() !== '');
     const headers = lines.shift().split(',').map(h => h.trim());
-    return lines.map(line => {
-      const data = line.split(',').map(d => d.trim());
-      const obj = {};
-      headers.forEach((h,i) => obj[h] = data[i] || '');
-      return obj;
-    }).filter(app => app['Task']); // only keep rows with Task
+    return lines
+      .map(line => {
+        const data = line.split(',').map(d => d.trim());
+        const obj = {};
+        headers.forEach((h,i) => obj[h] = data[i] || '');
+        return obj;
+      })
+      .filter(app => app['Task']);
   }
 
   const appList = document.getElementById('app-list');
