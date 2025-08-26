@@ -38,9 +38,7 @@
       transition: transform 0.3s ease;
     }
 
-    .client-info:hover {
-      transform: scale(1.01);
-    }
+    .client-info:hover { transform: scale(1.01); }
 
     #search {
       display: block;
@@ -76,10 +74,7 @@
       border-radius: 14px;
     }
 
-    @keyframes shimmer {
-      0% {background-position: 200% 0;}
-      100% {background-position: -200% 0;}
-    }
+    @keyframes shimmer { 0% {background-position: 200% 0;} 100% {background-position: -200% 0;} }
 
     .card {
       background: white;
@@ -128,64 +123,18 @@
       box-shadow: 0 0 10px rgba(0,0,0,0.15);
     }
 
-    .Done {
-      background: linear-gradient(270deg, #10b981, #14d79d, #10b981);
-      background-size: 600% 600%;
-      animation: pulseGradient 3s ease infinite;
-      box-shadow: 0 0 12px #10b981cc;
-    }
+    .Done { background: linear-gradient(270deg, #10b981, #14d79d, #10b981); background-size: 600% 600%; animation: pulseGradient 3s ease infinite; box-shadow: 0 0 12px #10b981cc; }
+    .Pending { background: linear-gradient(270deg, #fbbf24, #fde68a, #fbbf24); background-size: 600% 600%; animation: pulseGradient 3s ease infinite; box-shadow: 0 0 12px #fbbf24cc; }
+    .In-progress { background: linear-gradient(270deg, #3b82f6, #60a5fa, #3b82f6); background-size: 600% 600%; animation: pulseGradient 3s ease infinite; box-shadow: 0 0 12px #3b82f6cc; }
+    .Not-started { background: linear-gradient(270deg, #f59e0b, #fbbf24, #f59e0b); background-size: 600% 600%; animation: pulseGradient 3s ease infinite; box-shadow: 0 0 12px #f59e0bcc; }
 
-    .Pending {
-      background: linear-gradient(270deg, #fbbf24, #fde68a, #fbbf24);
-      background-size: 600% 600%;
-      animation: pulseGradient 3s ease infinite;
-      box-shadow: 0 0 12px #fbbf24cc;
-    }
+    @keyframes pulseGradient { 0% {background-position: 0% 50%;} 50% {background-position: 100% 50%;} 100% {background-position: 0% 50%;} }
+    @keyframes fadeUpScale { 0% { opacity: 0; transform: translateY(40px) scale(0.95); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
 
-    .In-progress {
-      background: linear-gradient(270deg, #3b82f6, #60a5fa, #3b82f6);
-      background-size: 600% 600%;
-      animation: pulseGradient 3s ease infinite;
-      box-shadow: 0 0 12px #3b82f6cc;
-    }
+    .disclaimer { margin-top: 40px; text-align: center; font-size: 0.95rem; color: #6b7280; animation: fadeIn 2s ease-in-out; }
+    @keyframes fadeIn { 0% {opacity: 0;} 100% {opacity: 1;} }
 
-    .Not-started {
-      background: linear-gradient(270deg, #f59e0b, #fbbf24, #f59e0b);
-      background-size: 600% 600%;
-      animation: pulseGradient 3s ease infinite;
-      box-shadow: 0 0 12px #f59e0bcc;
-    }
-
-    @keyframes pulseGradient {
-      0% {background-position: 0% 50%;}
-      50% {background-position: 100% 50%;}
-      100% {background-position: 0% 50%;}
-    }
-
-    @keyframes fadeUpScale {
-      0% { opacity: 0; transform: translateY(40px) scale(0.95); }
-      100% { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    .disclaimer {
-      margin-top: 40px;
-      text-align: center;
-      font-size: 0.95rem;
-      color: #6b7280;
-      animation: fadeIn 2s ease-in-out;
-    }
-
-    @keyframes fadeIn {
-      0% {opacity: 0;}
-      100% {opacity: 1;}
-    }
-
-    @media (min-width: 768px) {
-      #app-list {
-        grid-template-columns: 1fr 1fr;
-        gap: 24px;
-      }
-    }
+    @media (min-width: 768px) { #app-list { grid-template-columns: 1fr 1fr; gap: 24px; } }
   </style>
 </head>
 <body>
@@ -202,24 +151,21 @@
   <div class="skeleton-card"></div>
 </div>
 
-<div class="disclaimer">
-  📌 Developed by Johan de Beer. Data updates live from secure cloud storage.
-</div>
+<div class="disclaimer">📌 Developed by Johan de Beer. Data updates live from secure cloud storage.</div>
 
 <script>
-  const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSEi3YxtE4KBOCMWCZbHhshel3G9JOhB0zlPapJTmuh9qCBCUc_scjHVrkMlrZ9qnlmKvRUTBRwnsTy/pub?output=csv';
-
+  const CSV_URL = 'https://raw.githubusercontent.com/johandebeer21/Tracker-Demo/refs/heads/main/tracker9.csv';
   let applications = [];
 
   function parseCSV(text) {
-    const lines = text.trim().split('\n');
+    const lines = text.trim().split('\n').filter(line => line.trim() !== '');
     const headers = lines.shift().split(',').map(h => h.trim());
     return lines.map(line => {
       const data = line.split(',').map(d => d.trim());
       const obj = {};
-      headers.forEach((h, i) => obj[h] = data[i] || '');
+      headers.forEach((h,i) => obj[h] = data[i] || '');
       return obj;
-    });
+    }).filter(app => app['Task']); // only keep rows with Task
   }
 
   const appList = document.getElementById('app-list');
@@ -227,31 +173,23 @@
   const clientInfoDiv = document.getElementById('client-info');
 
   function renderClientInfo(apps) {
-    if (!apps.length) {
-      clientInfoDiv.textContent = 'No client information found.';
-      return;
-    }
-    const first = apps[0];
+    if (!apps.length) { clientInfoDiv.textContent = 'No client information found.'; return; }
+    const firstWithName = apps.find(a => a['Name'] || a['Surname'] || a['Application type']) || apps[0];
     clientInfoDiv.innerHTML = `
-      <div><strong>Client Name:</strong> ${first['Name'] || '-'}</div>
-      <div><strong>Client Surname:</strong> ${first['Surname'] || '-'}</div>
-      <div><strong>Application Type:</strong> ${first['Application type'] || '-'}</div>
+      <div><strong>Client Name:</strong> ${firstWithName['Name'] || '-'}</div>
+      <div><strong>Client Surname:</strong> ${firstWithName['Surname'] || '-'}</div>
+      <div><strong>Application Type:</strong> ${firstWithName['Application type'] || '-'}</div>
     `;
   }
 
   function renderApps(list) {
-    if (!list.length) {
-      appList.innerHTML = '<p>No applications found.</p>';
-      return;
-    }
+    if (!list.length) { appList.innerHTML = '<p>No applications found.</p>'; return; }
     appList.innerHTML = '';
-    list.forEach((app, i) => {
+    list.forEach((app,i) => {
       const card = document.createElement('div');
       card.className = 'card';
-      card.style.animationDelay = `${i * 0.1}s`;
-
-      const statusClass = app['Status'] ? app['Status'].replace(/\s+/g, '-') : 'Pending';
-
+      card.style.animationDelay = `${i*0.1}s`;
+      const statusClass = app['Status'] ? app['Status'].replace(/\s+/g,'-') : 'Pending';
       card.innerHTML = `
         <h3 class="task-title">${app['Task']}</h3>
         <div class="info-row"><span>Status:</span> <span class="status ${statusClass}">${app['Status']}</span></div>
@@ -266,24 +204,19 @@
   function fetchData() {
     appList.innerHTML = '<div class="skeleton-card"></div><div class="skeleton-card"></div><div class="skeleton-card"></div>';
     clientInfoDiv.textContent = 'Loading client info...';
-    const urlWithCacheBust = CSV_URL + '&cacheBust=' + Date.now();
-    fetch(urlWithCacheBust)
+    fetch(CSV_URL + '?cacheBust=' + Date.now())
       .then(res => res.ok ? res.text() : Promise.reject('Failed to fetch'))
       .then(text => {
         applications = parseCSV(text);
         renderClientInfo(applications);
         renderApps(applications);
       })
-      .catch(err => {
-        appList.innerHTML = '<p>Failed to load data.</p>';
-        clientInfoDiv.textContent = '';
-        console.error(err);
-      });
+      .catch(err => { appList.innerHTML = '<p>Failed to load data.</p>'; clientInfoDiv.textContent = ''; console.error(err); });
   }
 
   searchInput.addEventListener('input', () => {
     const term = searchInput.value.toLowerCase();
-    const filtered = applications.filter(app => app['Task'] && app['Task'].toLowerCase().includes(term));
+    const filtered = applications.filter(app => app['Task'].toLowerCase().includes(term));
     renderApps(filtered);
   });
 
